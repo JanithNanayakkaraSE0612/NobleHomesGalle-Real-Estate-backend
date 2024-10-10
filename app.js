@@ -2,9 +2,11 @@ const express = require("express");
 const morgan = require("morgan");
 const cors = require("cors");
 const app = express();
-const propertyRoutes = require("./routes/propertyRoutes");
 const setupSwagger = require("./config/swaggerConfig");
 const bodyParser = require("body-parser");
+
+const propertyRoutes = require("./routes/propertyRoutes");
+const agentRoutes = require("./routes/agentRoutes");
 
 // Middleware
 app.use(express.json()); // For parsing JSON bodies
@@ -22,6 +24,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/property", propertyRoutes);
+app.use("/api/agent", agentRoutes);
 
 // Handle errors (404, etc.)
 app.use((req, res, next) => {
