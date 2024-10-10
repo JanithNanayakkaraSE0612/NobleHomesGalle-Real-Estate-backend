@@ -3,10 +3,18 @@ const morgan = require("morgan");
 const cors = require("cors");
 const app = express();
 const propertyRoutes = require("./routes/propertyRoutes");
+const setupSwagger = require("./config/swaggerConfig");
+const bodyParser = require("body-parser");
+
 // Middleware
 app.use(express.json()); // For parsing JSON bodies
+app.use(bodyParser.json()); // For parsing JSON bodies
+app.use(bodyParser.urlencoded({ extended: true })); // For parsing URL-encoded bodies
 app.use(morgan("dev")); // For logging requests
 app.use(cors()); // Enable Cross-Origin Resource Sharing
+
+// Setup Swagger
+setupSwagger(app);
 
 // Routes
 app.get("/", (req, res) => {
