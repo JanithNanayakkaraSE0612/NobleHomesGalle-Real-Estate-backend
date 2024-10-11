@@ -292,3 +292,13 @@ exports.deleteVideo = async (req, res) => {
     sendResponse(res, "SERVER_ERROR");
   }
 };
+
+exports.getPropertyByAgent = async (req, res) => {
+  try {
+    const agentId = req.params.id;
+    const properties = await Property.find({ agent: agentId });
+    sendResponse(res, "SUCCESS", properties);
+  } catch (err) {
+    sendResponse(res, "SERVER_ERROR", { message: err.message });
+  }
+};

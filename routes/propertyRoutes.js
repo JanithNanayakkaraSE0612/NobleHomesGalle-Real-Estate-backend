@@ -8,6 +8,8 @@ const propertyController = require("../controllers/propertyController");
  * @swagger
  * /api/property:
  *   post:
+ *     tags:
+ *     - Property
  *     summary: Add a new property with photos and videos
  *     consumes:
  *       - multipart/form-data
@@ -69,6 +71,8 @@ router.post("/", propertyController.addProperty);
  * @swagger
  * /api/property:
  *   get:
+ *     tags:
+ *     - Property
  *     summary: Get all properties
  *     responses:
  *       200:
@@ -85,6 +89,8 @@ router.get("/", propertyController.getAllProperties);
  * @swagger
  * /api/property/{id}:
  *   get:
+ *     tags:
+ *     - Property
  *     summary: Get a property by ID
  *     parameters:
  *       - in: path
@@ -108,6 +114,8 @@ router.get("/:id", propertyController.getPropertyById);
  * @swagger
  * /api/property/update/{id}:
  *   put:
+ *     tags:
+ *     - Property
  *     summary: Update a property by ID
  *     parameters:
  *       - in: path
@@ -174,6 +182,8 @@ router.put("/update/:id", propertyController.updateProperty);
  * @swagger
  * /api/property/delete/{id}:
  *   delete:
+ *     tags:
+ *     - Property
  *     summary: Delete a property by ID
  *     parameters:
  *       - in: path
@@ -195,6 +205,8 @@ router.delete("/delete/:id", propertyController.deleteProperty);
  * @swagger
  * /api/property/remove/{id}/photos/{public_id}:
  *   delete:
+ *     tags:
+ *     - Property
  *     summary: Delete a photo from a property
  *     parameters:
  *       - in: path
@@ -220,6 +232,8 @@ router.delete("/remove/:id/photos/:public_id", propertyController.deletePhoto);
  * @swagger
  * /api/property/remove/{id}/videos/{public_id}:
  *   delete:
+ *     tags:
+ *     - Property
  *     summary: Delete a video from a property
  *     parameters:
  *       - in: path
@@ -241,5 +255,34 @@ router.delete("/remove/:id/photos/:public_id", propertyController.deletePhoto);
  *         description: Property or video not found
  */
 router.delete("/remove/:id/videos/:public_id", propertyController.deleteVideo);
+
+// Get properties by agent
+/**
+ * @swagger
+ * /api/property/agent/{id}:
+ *   get:
+ *     tags:
+ *     - Property
+ *     summary: Get all properties by agent ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The agent ID
+ *     responses:
+ *       200:
+ *         description: A list of properties
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Property'
+ *       404:
+ *         description: Agent not found
+ */
+router.get("/agent/:id", propertyController.getPropertyByAgent);
 
 module.exports = router;

@@ -14,6 +14,16 @@ const options = {
         url: "http://localhost:5000", // Replace with your server URL
       },
     ],
+    tags: [
+      {
+        name: "Property",
+        description: "Endpoints related to properties",
+      },
+      {
+        name: "Agent",
+        description: "Endpoints related to agents",
+      },
+    ],
     components: {
       schemas: {
         Property: {
@@ -111,6 +121,65 @@ const options = {
             pricePerUnit: {
               type: "number",
               description: "The price per unit of the land",
+            },
+          },
+        },
+        Agent: {
+          type: "object",
+          required: [
+            "authorImage",
+            "agentName",
+            "agentEmail",
+            "agentPhone",
+            "agentJoinDate",
+            "agentAddress",
+            "agentProvince",
+            "agentCity",
+            "agentZipCode",
+          ],
+          properties: {
+            authorImage: {
+              type: "object",
+              properties: {
+                public_id: {
+                  type: "string",
+                  description: "Public ID of the image",
+                },
+                url: { type: "string", description: "URL of the image" },
+              },
+              required: ["public_id", "url"],
+            },
+            agentName: {
+              type: "string",
+              description: "The name of the agent",
+            },
+            agentEmail: {
+              type: "string",
+              description: "The email of the agent",
+            },
+            agentPhone: {
+              type: "string",
+              description: "The phone number of the agent",
+            },
+            agentJoinDate: {
+              type: "string",
+              description: "The join date of the agent",
+            },
+            agentAddress: {
+              type: "string",
+              description: "The address of the agent",
+            },
+            agentProvince: {
+              type: "string",
+              description: "The province of the agent",
+            },
+            agentCity: {
+              type: "string",
+              description: "The city of the agent",
+            },
+            agentZipCode: {
+              type: "number",
+              description: "The zip code of the agent",
             },
           },
         },
