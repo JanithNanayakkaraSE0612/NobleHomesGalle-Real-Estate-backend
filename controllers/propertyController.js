@@ -168,10 +168,32 @@ exports.updateProperty = [
 exports.deleteProperty = async (req, res) => {
   try {
     const propertyId = req.params.id;
-    const property = await Property.findByIdAndDelete(propertyId);
+
+    const property = await Property.findById(propertyId);
+
     if (!property) {
       return sendResponse(res, "NOT_FOUND");
     }
+
+    // Delete photos from Cloudinary
+    if (property.photos && property.photos.length > 0) {
+      for (const photo of property.photos) {
+        await cloudinary.uploader.destroy(photo.public_id);
+      }
+    }
+
+    // Delete videos from Cloudinary
+    if (property.videos && property.videos.length > 0) {
+      for (const video of property.videos) {
+        await cloudinary.uploader.destroy(video.public_id, {
+          resource_type: "video",
+        });
+      }
+    }
+
+    // Delete the property from the database
+    await Property.findByIdAndDelete(propertyId);
+
     sendResponse(res, "SUCCESS", { message: "Property deleted successfully" });
   } catch (err) {
     sendResponse(res, "SERVER_ERROR");
