@@ -3,7 +3,10 @@ const router = express.Router();
 
 const propertyController = require("../controllers/propertyController");
 
-// Main routes
+// Main routes.............................................................................
+
+// Add a new property
+
 /**
  * @swagger
  * /api/property:
@@ -67,6 +70,9 @@ const propertyController = require("../controllers/propertyController");
  *         description: Bad request
  */
 router.post("/", propertyController.addProperty);
+
+// Get all properties
+
 /**
  * @swagger
  * /api/property:
@@ -85,6 +91,9 @@ router.post("/", propertyController.addProperty);
  *                 $ref: '#/components/schemas/Property'
  */
 router.get("/", propertyController.getAllProperties);
+
+// Get a property by ID
+
 /**
  * @swagger
  * /api/property/{id}:
@@ -110,6 +119,9 @@ router.get("/", propertyController.getAllProperties);
  *         description: Property not found
  */
 router.get("/:id", propertyController.getPropertyById);
+
+// Update a property
+
 /**
  * @swagger
  * /api/property/update/{id}:
@@ -178,6 +190,9 @@ router.get("/:id", propertyController.getPropertyById);
  *         description: Property not found
  */
 router.put("/update/:id", propertyController.updateProperty);
+
+// Delete a property
+
 /**
  * @swagger
  * /api/property/delete/{id}:
@@ -201,6 +216,8 @@ router.put("/update/:id", propertyController.updateProperty);
 router.delete("/delete/:id", propertyController.deleteProperty);
 
 // Sub routes...............................................................................
+
+// Delete a photo from a property
 /**
  * @swagger
  * /api/property/remove/{id}/photos/{public_id}:
@@ -228,6 +245,9 @@ router.delete("/delete/:id", propertyController.deleteProperty);
  *         description: Property or photo not found
  */
 router.delete("/remove/:id/photos/:public_id", propertyController.deletePhoto);
+
+// delete video from property
+
 /**
  * @swagger
  * /api/property/remove/{id}/videos/{public_id}:
@@ -257,6 +277,7 @@ router.delete("/remove/:id/photos/:public_id", propertyController.deletePhoto);
 router.delete("/remove/:id/videos/:public_id", propertyController.deleteVideo);
 
 // Get properties by agent
+
 /**
  * @swagger
  * /api/property/agent/{id}:

@@ -3,7 +3,9 @@ const router = express.Router();
 const agentController = require("../controllers/agentController");
 const { upload } = require("../config/cloudinaryConfig");
 
-// Main routes
+// Main routes.............................................................................
+
+// Add a new agent
 /**
  * @swagger
  * /api/agent:
@@ -55,6 +57,7 @@ const { upload } = require("../config/cloudinaryConfig");
  */
 router.post("/", agentController.addAgent);
 
+// Get all agents
 /**
  * @swagger
  * /api/agent:
@@ -72,6 +75,7 @@ router.post("/", agentController.addAgent);
  */
 router.get("/", agentController.getAllAgents);
 
+// Get an agent by ID
 /**
  * @swagger
  * /api/agent/{id}:
@@ -96,6 +100,7 @@ router.get("/", agentController.getAllAgents);
  */
 router.get("/:id", agentController.getAgentById);
 
+// Update an agent by ID
 /**
  * @swagger
  * /api/agent/update/{id}:
@@ -157,6 +162,8 @@ router.put(
   upload.single("authorImage"),
   agentController.updateAgentById
 );
+
+// Delete an agent by ID
 
 /**
  * @swagger
