@@ -20,8 +20,12 @@ const options = {
         description: "Endpoints related to properties",
       },
       {
-        name: "Agent",
-        description: "Endpoints related to agents",
+        name: "User",
+        description: "Endpoints related to users",
+      },
+      {
+        name: "Auth",
+        description: "Endpoints related to authentication",
       },
     ],
     components: {
@@ -124,63 +128,32 @@ const options = {
             },
           },
         },
-        Agent: {
+        User: {
           type: "object",
-          required: [
-            "authorImage",
-            "agentName",
-            "agentEmail",
-            "agentPhone",
-            "agentJoinDate",
-            "agentAddress",
-            "agentProvince",
-            "agentCity",
-            "agentZipCode",
-          ],
           properties: {
-            authorImage: {
+            profileImage: {
               type: "object",
               properties: {
-                public_id: {
-                  type: "string",
-                  description: "Public ID of the image",
-                },
-                url: { type: "string", description: "URL of the image" },
+                url: { type: "string" },
+                public_id: { type: "string" },
               },
-              required: ["public_id", "url"],
             },
-            agentName: {
-              type: "string",
-              description: "The name of the agent",
-            },
-            agentEmail: {
-              type: "string",
-              description: "The email of the agent",
-            },
-            agentPhone: {
-              type: "string",
-              description: "The phone number of the agent",
-            },
-            agentJoinDate: {
-              type: "string",
-              description: "The join date of the agent",
-            },
-            agentAddress: {
-              type: "string",
-              description: "The address of the agent",
-            },
-            agentProvince: {
-              type: "string",
-              description: "The province of the agent",
-            },
-            agentCity: {
-              type: "string",
-              description: "The city of the agent",
-            },
-            agentZipCode: {
-              type: "number",
-              description: "The zip code of the agent",
-            },
+            username: { type: "string" },
+            email: { type: "string" },
+            role: { type: "string" },
+            phone: { type: "string" },
+            birthday: { type: "string" },
+            streetAddress: { type: "string" },
+            city: { type: "string" },
+            province: { type: "string" },
+            zipCode: { type: "string" },
+          },
+        },
+        Auth: {
+          type: "object",
+          properties: {
+            email: { type: "string" },
+            password: { type: "string" },
           },
         },
       },

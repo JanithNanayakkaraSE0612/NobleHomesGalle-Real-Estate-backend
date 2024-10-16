@@ -11,7 +11,7 @@ const propertySchema = new mongoose.Schema({
   title: { type: String, required: true },
   titleDescription: { type: String, required: true },
   price: { type: Number, required: true },
-  agent: { type: mongoose.Schema.Types.ObjectId, ref: "Agent", required: true },
+  agent: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   map: { type: String, required: true },
   description: { type: String, required: true },
   photos: [
