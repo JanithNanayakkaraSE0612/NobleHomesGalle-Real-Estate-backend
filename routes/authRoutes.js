@@ -6,13 +6,14 @@ const {
   Signout,
   ForgotPassword,
   ResetPassword,
+  VerifyOTP,
 } = require("../controllers/authController");
 
 const router = express.Router();
 
 /**
  * @swagger
- * /auth/signup:
+ * /api/auth/signup:
  *   post:
  *     summary: Sign up a new user
  *     tags: [Auth]
@@ -38,7 +39,7 @@ const router = express.Router();
 router.post("/signup", SignUp);
 /**
  * @swagger
- * /auth/signin:
+ * /api/auth/signin:
  *   post:
  *     summary: Sign in a user
  *     tags: [Auth]
@@ -62,7 +63,7 @@ router.post("/signup", SignUp);
 router.post("/signin", Signin);
 /**
  * @swagger
- * /auth/google:
+ * /api/auth/google:
  *   post:
  *     summary: Sign in with Google
  *     tags: [Auth]
@@ -73,7 +74,7 @@ router.post("/signin", Signin);
 router.post("/google", Google);
 /**
  * @swagger
- * /auth/signout:
+ * /api/auth/signout:
  *   get:
  *     summary: Sign out a user
  *     tags: [Auth]
@@ -84,7 +85,7 @@ router.post("/google", Google);
 router.get("/signout", Signout);
 /**
  * @swagger
- * /auth/forgot-password:
+ * /api/auth/forgot-password:
  *   post:
  *     summary: Forgot password
  *     tags: [Auth]
@@ -104,19 +105,14 @@ router.get("/signout", Signout);
  *         description: User not found
  */
 router.post("/forgot-password", ForgotPassword);
+
+// Route for verifying OTP
 /**
  * @swagger
- * /auth/reset-password/{token}:
+ * /api/auth/verify-otp:
  *   post:
- *     summary: Reset password
+ *     summary: Verify OTP for password reset
  *     tags: [Auth]
- *     parameters:
- *       - in: path
- *         name: token
- *         schema:
- *           type: string
- *         required: true
- *         description: The password reset token
  *     requestBody:
  *       required: true
  *       content:
@@ -124,14 +120,71 @@ router.post("/forgot-password", ForgotPassword);
  *           schema:
  *             type: object
  *             properties:
- *               password:
+ *               otp:
  *                 type: string
+ *                 description: The OTP sent to the user's email
+ *     responses:
+ *       200:
+ *         description: OTP verified successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "OTP verified successfully"
+ *       400:
+ *         description: Invalid or expired OTP
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Invalid or expired OTP"
+ */
+router.post("/verify-otp", VerifyOTP);
+
+/**
+ * @swagger
+ * /api/auth/reset-password:
+ *   post:
+ *     summary: Set a new password after OTP verification
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               newPassword:
+ *                 type: string
+ *                 description: The new password to set
  *     responses:
  *       200:
  *         description: Password reset successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Password has been reset successfully"
  *       400:
- *         description: Bad request
+ *         description: Bad request or invalid input
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Error in resetting password"
  */
-router.post("/reset-password/:token", ResetPassword);
+router.post("/reset-password", ResetPassword);
 
 module.exports = router;

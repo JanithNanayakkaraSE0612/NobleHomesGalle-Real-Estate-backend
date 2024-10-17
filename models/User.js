@@ -1,4 +1,3 @@
-const e = require("express");
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
@@ -31,8 +30,12 @@ const userSchema = new mongoose.Schema({
     required: [true, "Password is required"],
     minlength: [6, "Password must be at least 6 characters long"],
   },
-  resetPasswordToken: { type: String }, // For storing hashed token
+  resetPasswordOTP: { type: String }, // For storing hashed token
   resetPasswordExpires: { type: Date },
+  otpVerified: {
+    type: Boolean,
+    default: false,
+  },
   phone: {
     type: Number,
   },

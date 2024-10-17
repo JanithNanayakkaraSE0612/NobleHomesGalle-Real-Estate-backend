@@ -3,8 +3,7 @@ const bcryptjs = require("bcryptjs");
 const { errorHandler } = require("../utils/error");
 const dotenv = require("dotenv");
 const jwt = require("jsonwebtoken");
-const { sendPasswordResetEmail } = require("../utils/emailService");
-const { generateResetToken } = require("../utils/crypto");
+const { sendOTPEmail } = require("../utils/emailService");
 const crypto = require("crypto");
 dotenv.config();
 
@@ -89,63 +88,88 @@ exports.Signout = async (req, res, next) => {
 exports.ForgotPassword = async (req, res, next) => {
   const { email } = req.body;
 
+  // Generate a random OTP (6 digits)
+  const generateOTP = () => {
+    return Math.floor(100000 + Math.random() * 900000); // 6-digit OTP
+  };
+
   try {
     const user = await User.findOne({ email });
     if (!user) return next(errorHandler(404, "User not found"));
 
-    const resetToken = generateResetToken();
+    // Generate OTP
+    const otp = generateOTP();
 
-    // Hash the token and save it with the user (for security reasons)
-    const hashedToken = crypto
+    // Hash the OTP and save to the user (for security reasons)
+    const hashedOTP = crypto
       .createHash("sha256")
-      .update(resetToken)
+      .update(otp.toString())
       .digest("hex");
-    user.resetPasswordToken = hashedToken;
-    user.resetPasswordExpires = Date.now() + 3600000; // Token expires in 1 hour
+    user.resetPasswordOTP = hashedOTP;
+    user.resetPasswordExpires = Date.now() + 3600000; // OTP expires in 1 hour
+    user.otpVerified = false;
     await user.save();
 
-    console.log("Protocol:", req.protocol); // Should log "http" or "https"
-    console.log("Host:", req.get("host")); // Should log "localhost:5000
+    // Send OTP via email
+    await sendOTPEmail(user.email, otp);
 
-    const resetUrl = `${req.protocol}://${req.get(
-      "host"
-    )}/api/auth/resetpassword/${resetToken}`;
+    res.status(200).json({ message: "OTP sent to email for password reset" });
+  } catch (error) {
+    next(error);
+  }
+};
 
-    console.log("Reset URL:", resetUrl);
+exports.VerifyOTP = async (req, res, next) => {
+  const { otp } = req.body;
 
-    await sendPasswordResetEmail(user.email, resetUrl);
+  try {
+    // Hash the provided OTP to compare it with the stored hashed OTP
+    const hashedOTP = crypto
+      .createHash("sha256")
+      .update(otp.toString())
+      .digest("hex");
 
-    res.status(200).json({ message: "Password reset link sent to email" });
+    // Find the user by OTP and check its validity
+    const user = await User.findOne({
+      resetPasswordOTP: hashedOTP,
+      resetPasswordExpires: { $gt: Date.now() }, // Check if OTP is still valid
+    });
+
+    if (!user) {
+      return next(errorHandler(400, "Invalid or expired OTP"));
+    }
+
+    // Flag the user as OTP verified (e.g., add a field in the database)
+    user.otpVerified = true;
+    await user.save();
+
+    res.status(200).json({ message: "OTP verified successfully" });
   } catch (error) {
     next(error);
   }
 };
 
 exports.ResetPassword = async (req, res, next) => {
-  const { token } = req.params;
   const { newPassword } = req.body;
 
   try {
-    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
-
+    // Find the user based on the resetPasswordOTP and check OTP expiry
     const user = await User.findOne({
-      resetPasswordToken: hashedToken,
+      otpVerified: true,
     });
 
     if (!user) {
-      console.log("User not found.");
-
-      return next(errorHandler(400, "Invalid or expired token"));
-    }
-    if (user.resetPasswordExpires < Date.now()) {
-      return next(errorHandler(400, "Invalid or expired token"));
+      return next(errorHandler(400, "OTP verification required"));
     }
 
-    const hasshedPassword = bcryptjs.hashSync(newPassword, 10);
-    user.password = hasshedPassword;
+    // Hash the new password and update the user's password
+    const hashedPassword = bcryptjs.hashSync(newPassword, 10);
+    user.password = hashedPassword;
 
-    user.resetPasswordToken = undefined;
+    // Clear the OTP and expiry fields
+    user.resetPasswordOTP = undefined;
     user.resetPasswordExpires = undefined;
+    user.otpVerified = false;
 
     await user.save();
 
