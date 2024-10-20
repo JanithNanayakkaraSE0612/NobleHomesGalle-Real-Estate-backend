@@ -13,16 +13,17 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-exports.sendPasswordResetEmail = async (email, resetUrl) => {
+exports.sendOTPEmail = async (email, otp) => {
   try {
     const mailOptions = {
       from: process.env.EMAIL_HOST,
       to: email,
-      subject: "Password Reset",
+      subject: "Your OTP for Password Reset",
       html: `
-            <p>Click the link below to reset your password</p>
-            <a href="${resetUrl}">Reset Password</a>
-            `,
+      <p>You requested to reset your password</p>
+      <p>Your OTP is: <strong>${otp}</strong></p>
+      <p>This OTP is valid for 1 hour.</p>
+    `,
     };
     await transporter.sendMail(mailOptions);
     console.log("Email sent");
