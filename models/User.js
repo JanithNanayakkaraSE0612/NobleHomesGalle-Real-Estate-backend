@@ -27,8 +27,18 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: [true, "Password is required"],
     minlength: [6, "Password must be at least 6 characters long"],
+    validate: {
+      validator: function (v) {
+        // Password is required only if the role is admin
+        return this.role !== "admin" || (this.role === "admin" && v);
+      },
+      message: "Password is required for admin users",
+    },
+  },
+  property: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Property",
   },
   resetPasswordOTP: { type: String }, // For storing hashed token
   resetPasswordExpires: { type: Date },

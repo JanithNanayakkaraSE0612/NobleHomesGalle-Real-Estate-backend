@@ -1,7 +1,85 @@
 const User = require("../models/User");
+const Property = require("../models/Property");
 const sendResponse = require("../middleware/responseHandler");
+const bcryptjs = require("bcryptjs");
 const { upload, cloudinary } = require("../config/cloudinaryConfig");
 
+// create new admin
+exports.createAdmin = [
+  upload.single("profileImage"),
+  async (req, res, next) => {
+    const { username, email, password, phone, birthday, joinDate } = req.body;
+    try {
+      const hashedPassword = bcryptjs.hashSync(password, 10);
+      const profileImage = req.file
+        ? {
+            url: req.file.path,
+            public_id: req.file.filename,
+          }
+        : null;
+
+      const newUser = new User({
+        username,
+        email,
+        password: hashedPassword,
+        phone,
+        birthday,
+        joinDate,
+        profileImage,
+        role: "admin", // Ensure the role is set to admin
+      });
+
+      await newUser.save();
+      res.status(201).json("Admin created");
+    } catch (error) {
+      next(error);
+    }
+  },
+];
+
+// Create a new agent...............................................
+exports.createAgent = async (req, res) => {
+  try {
+    const newUser = new User({
+      ...req.body,
+      role: "agent",
+      profileImage: {
+        url: req.file.path,
+        public_id: req.file.filename,
+      },
+    });
+    await newUser.save();
+    sendResponse(res, "SUCCESS", newUser);
+  } catch (err) {
+    sendResponse(res, "SERVER_ERROR", { message: err.message });
+  }
+};
+
+// Create a new customer and property...............................................
+exports.createNewCustomerAndProperty = async (req, res) => {
+  try {
+    const { customer, property } = req.body;
+    // Create and save the new customer first
+    const newCustomer = new User({
+      ...customer,
+      role: "customer",
+    });
+    await newCustomer.save();
+
+    // Create and save the new property, referencing the new customer's ID
+    const newProperty = new Property({
+      ...property,
+      customer: newCustomer._id,
+    });
+    await newProperty.save();
+
+    sendResponse(res, "SUCCESS", { newCustomer, newProperty });
+  } catch (error) {
+    sendResponse(res, "SERVER_ERROR", { message: error.message });
+  }
+};
+
+//fetch specific user...............................................
 exports.getUserById = async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
@@ -14,6 +92,7 @@ exports.getUserById = async (req, res) => {
   }
 };
 
+//update specific user...............................................
 exports.UpdateUser = async (req, res, next) => {
   try {
     const userId = req.params.id;
@@ -24,12 +103,23 @@ exports.UpdateUser = async (req, res, next) => {
       return sendResponse(res, "NOT_FOUND");
     }
 
-    const newProfileImage = req.file
-      ? {
-          url: req.file.path,
-          public_id: req.file.filename,
-        }
-      : existingUserData.profileImage;
+    let newProfileImage = existingUserData.profileImage;
+
+    // If a new file is uploaded, delete the old image from Cloudinary
+    if (req.file) {
+      if (
+        existingUserData.profileImage &&
+        existingUserData.profileImage.public_id
+      ) {
+        await cloudinary.uploader.destroy(
+          existingUserData.profileImage.public_id
+        );
+      }
+      newProfileImage = {
+        url: req.file.path,
+        public_id: req.file.filename,
+      };
+    }
 
     const updatedData = {
       profileImage: newProfileImage,
@@ -50,13 +140,13 @@ exports.UpdateUser = async (req, res, next) => {
     const updatedUser = await User.findByIdAndUpdate(userId, updatedData, {
       new: true,
     });
-
     sendResponse(res, "SUCCESS", updatedUser);
   } catch (err) {
     sendResponse(res, "SERVER_ERROR");
   }
 };
 
+//delete specific user...............................................
 exports.deleteUser = async (req, res) => {
   try {
     const userId = req.params.id;
@@ -73,6 +163,7 @@ exports.deleteUser = async (req, res) => {
   }
 };
 
+//get all users...............................................
 exports.getAllUsers = async (req, res) => {
   try {
     const { role: queryRole } = req.query;

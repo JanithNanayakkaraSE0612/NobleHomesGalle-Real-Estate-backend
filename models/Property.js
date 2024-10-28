@@ -7,23 +7,28 @@ const propertySchema = new mongoose.Schema({
     enum: ["house", "land"],
     required: true,
   },
-  city: { type: String, required: true },
-  title: { type: String, required: true },
-  titleDescription: { type: String, required: true },
-  price: { type: Number, required: true },
+  city: { type: String, required: false },
+  title: { type: String, required: false },
+  titleDescription: { type: String, required: false },
+  price: { type: Number, required: false },
   agent: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  customer: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: false,
+  },
   map: { type: String, required: true },
-  description: { type: String, required: true },
+  description: { type: String, required: false },
   photos: [
     {
-      public_id: { type: String, required: true }, // Unique ID for each photo
-      url: { type: String, required: true },
+      public_id: { type: String, required: false }, // Unique ID for each photo
+      url: { type: String, required: false },
     },
   ],
   videos: [
     {
-      public_id: { type: String, required: true }, // Unique ID for each video
-      url: { type: String, required: true },
+      public_id: { type: String, required: false }, // Unique ID for each video
+      url: { type: String, required: false },
     },
   ],
   //For House.....................................................
