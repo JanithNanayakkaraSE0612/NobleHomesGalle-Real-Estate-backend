@@ -7,6 +7,7 @@ const { sendOTPEmail } = require("../utils/emailService");
 const crypto = require("crypto");
 dotenv.config();
 
+// user singup
 exports.SignUp = async (req, res, next) => {
   const { username, email, password } = req.body;
   try {
@@ -19,6 +20,7 @@ exports.SignUp = async (req, res, next) => {
   }
 };
 
+//user signin
 exports.Signin = async (req, res, next) => {
   const { email, password } = req.body;
   try {
@@ -44,6 +46,7 @@ exports.Signin = async (req, res, next) => {
   }
 };
 
+//google signin..........
 exports.Google = async (req, res) => {
   try {
     const user = await User.findOne({ email: req.body.email });
@@ -76,6 +79,7 @@ exports.Google = async (req, res) => {
   }
 };
 
+//signout.......................
 exports.Signout = async (req, res, next) => {
   try {
     res.clearCookie("access_token");
@@ -85,6 +89,7 @@ exports.Signout = async (req, res, next) => {
   }
 };
 
+//forgot password.......................
 exports.ForgotPassword = async (req, res, next) => {
   const { email } = req.body;
 
@@ -106,7 +111,7 @@ exports.ForgotPassword = async (req, res, next) => {
       .update(otp.toString())
       .digest("hex");
     user.resetPasswordOTP = hashedOTP;
-    user.resetPasswordExpires = Date.now() + 3600000; // OTP expires in 1 hour
+    user.resetPasswordExpires = Date.now() + 300; // OTP expires in 1 hour
     user.otpVerified = false;
     await user.save();
 
@@ -119,6 +124,7 @@ exports.ForgotPassword = async (req, res, next) => {
   }
 };
 
+// otp verificaton...............................
 exports.VerifyOTP = async (req, res, next) => {
   const { otp } = req.body;
 
@@ -149,6 +155,7 @@ exports.VerifyOTP = async (req, res, next) => {
   }
 };
 
+//reset password...............................
 exports.ResetPassword = async (req, res, next) => {
   const { newPassword } = req.body;
 

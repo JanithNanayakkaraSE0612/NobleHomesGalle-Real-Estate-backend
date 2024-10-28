@@ -138,8 +138,14 @@ exports.updateProperty = [
         : [];
 
       // Combine existing and new photos/videos (if any)
-      const updatedPhotos = [...existingProperty.photos, ...newPhotos];
-      const updatedVideos = [...existingProperty.videos, ...newVideos];
+      const updatedPhotos =
+        newPhotos.length > 0
+          ? [...existingProperty.photos, ...newPhotos]
+          : existingProperty.photos;
+      const updatedVideos =
+        newVideos.length > 0
+          ? [...existingProperty.videos, ...newVideos]
+          : existingProperty.videos;
 
       // Update property data
       const updatedData = {
@@ -293,6 +299,7 @@ exports.deleteVideo = async (req, res) => {
   }
 };
 
+//retriving agent specifiy properties
 exports.getPropertyByAgent = async (req, res) => {
   try {
     const agentId = req.params.id;
