@@ -299,6 +299,111 @@ exports.deleteVideo = async (req, res) => {
   }
 };
 
+//replace individual photo using public_id
+exports.replacePhoto = [
+  upload.single("photo"), // Expecting a single photo upload
+  async (req, res) => {
+    try {
+      const propertyId = req.params.id;
+      const photoId = req.params.public_id;
+
+      // Find the property by ID
+      const property = await Property.findById(propertyId);
+      if (!property) {
+        return sendResponse(res, "Property_NOT_FOUND");
+      }
+
+      // Find the photo by ID
+      const photoIndex = property.photos.findIndex(
+        (photo) => photo.public_id === photoId
+      );
+      if (photoIndex === -1) {
+        return sendResponse(res, "NOT_FOUND", { message: "Photo not found" });
+      }
+
+      // Get the photo to be replaced
+      const oldPhoto = property.photos[photoIndex];
+
+      // Delete the old photo from Cloudinary
+      await cloudinary.uploader.destroy(oldPhoto.public_id, {
+        resource_type: "image",
+      });
+
+      // Upload the new photo to Cloudinary
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        public_id: req.file.filename, // Set the public ID to be the file's name
+        resource_type: "image", // Specify that it's an image
+      });
+
+      // Replace the old photo with the new one in the property document
+      property.photos[photoIndex] = {
+        url: result.secure_url,
+        public_id: result.public_id,
+      };
+
+      // Save the updated property document
+      await property.save();
+      sendResponse(res, "SUCCESS", property);
+    } catch (err) {
+      console.error(err);
+      sendResponse(res, "SERVER_ERROR", { message: err.message });
+    }
+  },
+];
+
+// Replace individual video using public_id
+exports.replaceVideo = [
+  upload.single("video"),
+  async (req, res) => {
+    try {
+      const propertyId = req.params.id;
+      const videoId = req.params.public_id;
+
+      // Find the property by ID
+      const property = await Property.findById(propertyId);
+      if (!property) {
+        return sendResponse(res, "NOT_FOUND");
+      }
+
+      // Find the video by ID
+      const videoIndex = property.videos.findIndex(
+        (video) => video.public_id === videoId
+      );
+      if (videoIndex === -1) {
+        return sendResponse(res, "NOT_FOUND", { message: "Video not found" });
+      }
+
+      // Get the video to be replaced
+      const oldVideo = property.videos[videoIndex];
+
+      // Delete the old video from Cloudinary
+      await cloudinary.uploader.destroy(oldVideo.public_id, {
+        resource_type: "video",
+      });
+
+      // Upload the new video to Cloudinary
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        public_id: req.file.filename,
+        resource_type: "video",
+      });
+
+      // Replace the video in the property document
+      property.videos[videoIndex] = {
+        url: result.secure_url,
+        public_id: result.public_id,
+      };
+
+      // Save the updated property document
+      await property.save();
+
+      sendResponse(res, "SUCCESS", property);
+    } catch (err) {
+      console.error(err);
+      sendResponse(res, "SERVER_ERROR", { message: err.message });
+    }
+  },
+];
+
 //retriving agent specifiy properties
 exports.getPropertyByAgent = async (req, res) => {
   try {
