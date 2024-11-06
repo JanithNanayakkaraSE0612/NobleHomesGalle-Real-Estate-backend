@@ -276,6 +276,9 @@ router.delete("/remove/:id/photos/:public_id", propertyController.deletePhoto);
  */
 router.delete("/remove/:id/videos/:public_id", propertyController.deleteVideo);
 
+router.put("/replace/:id/photos/:public_id", propertyController.replacePhoto);
+router.put("/replace/:id/videos/:public_id", propertyController.replaceVideo);
+
 // Get properties by agent
 
 /**
